@@ -1,9 +1,8 @@
-
 /* IMPORT */
 
-import {setBatch} from '~/context';
-import {noop} from '~/utils';
-import type {BatchFunction, CallbackFunction} from '~/types';
+import { setBatch } from "../context";
+import { noop } from "../utils";
+import type { BatchFunction, CallbackFunction } from "../types";
 
 /* HELPERS */
 
@@ -12,33 +11,23 @@ let resolve: CallbackFunction = noop;
 
 /* MAIN */
 
-const batch = async <T> ( fn: BatchFunction<T> ): Promise<Awaited<T>> => {
+const batch = async <T>(fn: BatchFunction<T>): Promise<Awaited<T>> => {
+	if (!counter) {
+		setBatch(new Promise((r) => (resolve = r)));
+	}
 
-  if ( !counter ) {
+	try {
+		counter += 1;
 
-    setBatch ( new Promise ( r => resolve = r ) );
+		return await fn();
+	} finally {
+		counter -= 1;
 
-  }
-
-  try {
-
-    counter += 1;
-
-    return await fn ();
-
-  } finally {
-
-    counter -= 1;
-
-    if ( !counter ) {
-
-      setBatch ( undefined );
-      resolve ();
-
-    }
-
-  }
-
+		if (!counter) {
+			setBatch(undefined);
+			resolve();
+		}
+	}
 };
 
 /* MAIN */

@@ -1,112 +1,111 @@
-
 /* IMPORT */
 
-import {UNAVAILABLE} from '~/constants';
-import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
-import {lazyArrayEachRight} from '~/lazy';
-import {castError} from '~/utils';
-import type {SYMBOL_SUSPENSE} from '~/symbols';
-import type {IContext, IObserver, IOwner, IRoot, ISuperRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue} from '~/types';
+import { UNAVAILABLE } from "../constants";
+import { OBSERVER, OWNER, setObserver, setOwner } from "../context";
+import { lazyArrayEachRight } from "../lazy";
+import { castError } from "../utils";
+import type { SYMBOL_SUSPENSE } from "../symbols";
+import type {
+	IContext,
+	IObserver,
+	IOwner,
+	IRoot,
+	ISuperRoot,
+	ISuspense,
+	CleanupFunction,
+	ErrorFunction,
+	WrappedFunction,
+	Callable,
+	Contexts,
+	LazyArray,
+	LazySet,
+	LazyValue,
+} from "../types";
 
 /* HELPERS */
 
-const onCleanup = ( cleanup: Callable<CleanupFunction> ): void => cleanup.call ( cleanup );
-const onDispose = ( owner: IOwner ): void => owner.dispose ( true );
+const onCleanup = (cleanup: Callable<CleanupFunction>): void =>
+	cleanup.call(cleanup);
+const onDispose = (owner: IOwner): void => owner.dispose(true);
 
 /* MAIN */
 
 //TODO: Throw when registering stuff after disposing, maybe
 
 class Owner {
+	/* VARIABLES */
 
-  /* VARIABLES */
+	parent?: IOwner;
+	context?: Contexts;
+	disposed: boolean = false;
+	cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
+	errorHandler: LazyValue<ErrorFunction> = undefined;
+	contexts: LazyArray<IContext> = undefined;
+	observers: LazyArray<IObserver> = undefined;
+	roots: LazySet<IRoot | (() => IRoot[])> = undefined;
+	suspenses: LazyArray<ISuspense> = undefined;
 
-  parent?: IOwner;
-  context?: Contexts;
-  disposed: boolean = false;
-  cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
-  errorHandler: LazyValue<ErrorFunction> = undefined;
-  contexts: LazyArray<IContext> = undefined;
-  observers: LazyArray<IObserver> = undefined;
-  roots: LazySet<IRoot | (() => IRoot[])> = undefined;
-  suspenses: LazyArray<ISuspense> = undefined;
+	/* API */
 
-  /* API */
+	catch(error: Error, silent: boolean): boolean {
+		const { errorHandler } = this;
 
-  catch ( error: Error, silent: boolean ): boolean {
+		if (errorHandler) {
+			errorHandler(error); //TODO: This assumes that the error handler won't throw immediately, which we know, but Owner shouldn't know
 
-    const {errorHandler} = this;
+			return true;
+		} else {
+			if (this.parent?.catch(error, true)) return true;
 
-    if ( errorHandler ) {
+			if (silent) return false;
 
-      errorHandler ( error ); //TODO: This assumes that the error handler won't throw immediately, which we know, but Owner shouldn't know
+			// console.error ( error.stack ); // <-- Log "error.stack" to better understand where the error happened
 
-      return true;
+			throw error;
+		}
+	}
 
-    } else {
+	dispose(deep: boolean): void {
+		lazyArrayEachRight(this.contexts, onDispose);
+		lazyArrayEachRight(this.observers, onDispose);
+		lazyArrayEachRight(this.suspenses, onDispose);
+		lazyArrayEachRight(this.cleanups, onCleanup);
 
-      if ( this.parent?.catch ( error, true ) ) return true;
+		this.cleanups = undefined;
+		this.disposed = deep;
+		this.errorHandler = undefined;
+		this.observers = undefined;
+		this.suspenses = undefined;
+	}
 
-      if ( silent ) return false;
+	get(symbol: typeof SYMBOL_SUSPENSE): ISuspense | undefined;
+	get(symbol: symbol): any;
+	get(symbol: symbol) {
+		return this.context?.[symbol];
+	}
 
-      // console.error ( error.stack ); // <-- Log "error.stack" to better understand where the error happened
+	wrap<T>(
+		fn: WrappedFunction<T>,
+		owner: IContext | IObserver | IRoot | ISuperRoot | ISuspense,
+		observer: IObserver | undefined,
+	): T {
+		const ownerPrev = OWNER;
+		const observerPrev = OBSERVER;
 
-      throw error;
+		setOwner(owner);
+		setObserver(observer);
 
-    }
+		try {
+			return fn();
+		} catch (error: unknown) {
+			this.catch(castError(error), false); // Bubbling the error up
 
-  }
-
-  dispose ( deep: boolean ): void {
-
-    lazyArrayEachRight ( this.contexts, onDispose );
-    lazyArrayEachRight ( this.observers, onDispose );
-    lazyArrayEachRight ( this.suspenses, onDispose );
-    lazyArrayEachRight ( this.cleanups, onCleanup );
-
-    this.cleanups = undefined;
-    this.disposed = deep;
-    this.errorHandler = undefined;
-    this.observers = undefined;
-    this.suspenses = undefined;
-
-  }
-
-  get ( symbol: typeof SYMBOL_SUSPENSE ): ISuspense | undefined;
-  get ( symbol: symbol ): any;
-  get ( symbol: symbol ) {
-
-    return this.context?.[symbol];
-
-  }
-
-  wrap <T> ( fn: WrappedFunction<T>, owner: IContext | IObserver | IRoot | ISuperRoot | ISuspense, observer: IObserver | undefined ): T {
-
-    const ownerPrev = OWNER;
-    const observerPrev = OBSERVER;
-
-    setOwner ( owner );
-    setObserver ( observer );
-
-    try {
-
-      return fn ();
-
-    } catch ( error: unknown ) {
-
-      this.catch ( castError ( error ), false ); // Bubbling the error up
-
-      return UNAVAILABLE; // Returning a value that is the least likely to cause bugs
-
-    } finally {
-
-      setOwner ( ownerPrev );
-      setObserver ( observerPrev );
-
-    }
-
-  }
-
+			return UNAVAILABLE; // Returning a value that is the least likely to cause bugs
+		} finally {
+			setOwner(ownerPrev);
+			setObserver(observerPrev);
+		}
+	}
 }
 
 /* EXPORT */

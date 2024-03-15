@@ -1,81 +1,64 @@
-
 /* IMPORT */
 
-import type {IObserver} from '~/types';
+import type { IObserver } from "../types";
 
 /* MAIN */
 
 // This ensures that there's only one flushing of the queue happening at the same time
 
 class Scheduler {
+	/* VARIABLES */
 
-  /* VARIABLES */
+	waiting: IObserver[] = [];
 
-  waiting: IObserver[] = [];
+	counter: number = 0;
+	locked: boolean = false;
 
-  counter: number = 0;
-  locked: boolean = false;
+	/* QUEING API */
 
-  /* QUEING API */
+	flush = (): void => {
+		if (this.locked) return;
 
-  flush = (): void => {
+		if (this.counter) return;
 
-    if ( this.locked ) return;
+		if (!this.waiting.length) return;
 
-    if ( this.counter ) return;
+		try {
+			this.locked = true;
 
-    if ( !this.waiting.length ) return;
+			while (true) {
+				const queue = this.waiting;
 
-    try {
+				if (!queue.length) break;
 
-      this.locked = true;
+				this.waiting = [];
 
-      while ( true ) {
+				for (let i = 0, l = queue.length; i < l; i++) {
+					queue[i].update();
+				}
+			}
+		} finally {
+			this.locked = false;
+		}
+	};
 
-        const queue = this.waiting;
+	wrap = (fn: () => void): void => {
+		this.counter += 1;
 
-        if ( !queue.length ) break;
+		fn();
 
-        this.waiting = [];
+		this.counter -= 1;
 
-        for ( let i = 0, l = queue.length; i < l; i++ ) {
+		this.flush();
+	};
 
-          queue[i].update ();
+	/* SCHEDULING API */
 
-        }
-
-      }
-
-    } finally {
-
-      this.locked = false;
-
-    }
-
-  }
-
-  wrap = ( fn: () => void ): void => {
-
-    this.counter += 1;
-
-    fn ();
-
-    this.counter -= 1;
-
-    this.flush ();
-
-  }
-
-  /* SCHEDULING API */
-
-  schedule = ( observer: IObserver ): void => {
-
-    this.waiting.push ( observer );
-
-  }
-
+	schedule = (observer: IObserver): void => {
+		this.waiting.push(observer);
+	};
 }
 
 /* EXPORT */
 
-export default new Scheduler ();
+export default new Scheduler();

@@ -1,40 +1,33 @@
-
 /* IMPORT */
 
-import {OWNER} from '~/context';
-import {lazyArrayPush} from '~/lazy';
-import Owner from '~/objects/owner';
-import type {IOwner, ContextFunction, Contexts} from '~/types';
+import { OWNER } from "../context";
+import { lazyArrayPush } from "../lazy";
+import Owner from "../objects/owner";
+import type { IOwner, ContextFunction, Contexts } from "../types";
 
 /* MAIN */
 
 class Context extends Owner {
+	/* VARIABLES */
 
-  /* VARIABLES */
+	parent: IOwner = OWNER;
+	context: Contexts;
 
-  parent: IOwner = OWNER;
-  context: Contexts;
+	/* CONSTRUCTOR */
 
-  /* CONSTRUCTOR */
+	constructor(context: Contexts) {
+		super();
 
-  constructor ( context: Contexts ) {
+		this.context = { ...OWNER.context, ...context };
 
-    super ();
+		lazyArrayPush(this.parent, "contexts", this);
+	}
 
-    this.context = { ...OWNER.context, ...context };
+	/* API */
 
-    lazyArrayPush ( this.parent, 'contexts', this );
-
-  }
-
-  /* API */
-
-  wrap <T> ( fn: ContextFunction<T> ): T {
-
-    return super.wrap ( fn, this, undefined );
-
-  }
-
+	wrap<T>(fn: ContextFunction<T>): T {
+		return super.wrap(fn, this, undefined);
+	}
 }
 
 /* EXPORT */

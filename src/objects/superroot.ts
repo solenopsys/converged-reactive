@@ -1,18 +1,15 @@
-
 /* IMPORT */
 
-import Owner from '~/objects/owner';
-import type {Contexts} from '~/types';
+import Owner from "../objects/owner";
+import type { Contexts } from "../types";
 
 /* MAIN */
 
 class SuperRoot extends Owner {
+	/* VARIABLES */
 
-  /* VARIABLES */
-
-  parent: undefined;
-  context: Contexts = {};
-
+	parent: undefined;
+	context: Contexts = {};
 }
 
 /* EXPORT */

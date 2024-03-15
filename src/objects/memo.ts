@@ -1,74 +1,59 @@
-
 /* IMPORT */
 
-import {DIRTY_MAYBE_YES, UNAVAILABLE, UNINITIALIZED} from '~/constants';
-import Observable from '~/objects/observable';
-import Observer from '~/objects/observer';
-import type {IObservable, MemoFunction, MemoOptions} from '~/types';
+import { DIRTY_MAYBE_YES, UNAVAILABLE, UNINITIALIZED } from "../constants";
+import Observable from "../objects/observable";
+import Observer from "../objects/observer";
+import type { IObservable, MemoFunction, MemoOptions } from "../types";
 
 /* MAIN */
 
 class Memo<T = unknown> extends Observer {
+	/* VARIABLES */
 
-  /* VARIABLES */
+	fn: MemoFunction<T>;
+	observable: IObservable<T>;
+	sync?: boolean;
 
-  fn: MemoFunction<T>;
-  observable: IObservable<T>;
-  sync?: boolean;
+	/* CONSTRUCTOR */
 
-  /* CONSTRUCTOR */
+	constructor(fn: MemoFunction<T>, options?: MemoOptions<T>) {
+		super();
 
-  constructor ( fn: MemoFunction<T>, options?: MemoOptions<T> ) {
+		this.fn = fn;
+		this.observable = new Observable<T>(UNINITIALIZED, options, this);
 
-    super ();
+		if (options?.sync === true) {
+			this.sync = true;
 
-    this.fn = fn;
-    this.observable = new Observable<T> ( UNINITIALIZED, options, this );
+			this.update();
+		}
+	}
 
-    if ( options?.sync === true ) {
+	/* API */
 
-      this.sync = true;
+	run(): void {
+		const result = super.refresh(this.fn);
 
-      this.update ();
+		if (!this.disposed && this.observables.empty()) {
+			this.disposed = true;
+		}
 
-    }
+		if (result !== UNAVAILABLE) {
+			this.observable.set(result);
+		}
+	}
 
-  }
+	stale(status: number): void {
+		const statusPrev = this.status;
 
-  /* API */
+		if (statusPrev >= status) return;
 
-  run (): void {
+		this.status = status;
 
-    const result = super.refresh ( this.fn );
+		if (statusPrev === DIRTY_MAYBE_YES) return;
 
-    if ( !this.disposed && this.observables.empty () ) {
-
-      this.disposed = true;
-
-    }
-
-    if ( result !== UNAVAILABLE ) {
-
-      this.observable.set ( result );
-
-    }
-
-  }
-
-  stale ( status: number ): void {
-
-    const statusPrev = this.status;
-
-    if ( statusPrev >= status ) return;
-
-    this.status = status;
-
-    if ( statusPrev === DIRTY_MAYBE_YES ) return;
-
-    this.observable.stale ( DIRTY_MAYBE_YES );
-
-  }
-
+		this.observable.stale(DIRTY_MAYBE_YES);
+	}
 }
 
 /* EXPORT */

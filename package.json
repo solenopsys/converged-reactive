@@ -1,34 +1,17 @@
 {
-  "name": "oby",
-  "repository": "github:vobyjs/oby",
-  "description": "A rich Observable/Signal implementation, the brilliant primitive you need to build a powerful reactive system.",
-  "version": "15.1.0",
+  "name": "@solenopsys/converged-reactive",
+  "description": "Observable/Signal implementation for Coverged Framework",
+  "version": "1.0.0",
   "type": "module",
+  "module": "src/index.ts",
   "sideEffects": false,
   "main": "dist/index.js",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "all": "scex -sb compile compile:mangle test cellx cleanup context creation kairo if memory read store store:creation updates",
-    "bench": "node tasks/bench.js",
-    "cellx": "node tasks/cellx.js",
-    "clean": "tsex clean",
-    "cleanup": "node tasks/cleanup.js",
-    "context": "node tasks/context.js",
-    "compile": "tsex compile",
-    "compile:mangle": "mangler --folder dist --ext js --props 'active,after,before,bool,cache,cleanups,contexts,count,counter,dispose,errorHandler,flush,flushIfNotBatching,fnWithIndex,getters,insert,link,listeners,listenersRegular,listenersRoots,locked,nextCount,node,nodes,observables,observablesIndex,observers,onRoots,parents,pool,poolMaxSize,postdispose,prevCount,prepare,properties,queued,refresh,register,registered,registerWith,result,reuseCount,roots,running,schedule,selecteds,setters,signal,source,stale,status,suspenses,toggle,unschedule,update,waiting,wrap'",
-    "compile:watch": "tsex compile --watch",
-    "creation": "node tasks/creation.js",
-    "if": "node tasks/if.js",
-    "kairo": "node tasks/kairo.js",
-    "memory": "node tasks/memory.js",
-    "read": "node tasks/read.js",
-    "store": "node tasks/store.js",
-    "store:creation": "node tasks/store.creation.js",
-    "test": "tsex test",
-    "test:watch": "tsex test --watch",
-    "updates": "node tasks/updates.js",
-    "prepublishOnly": "scex -s clean compile compile:mangle test"
+    "bundle": "bun build src/index.ts  --outfile=bundle.js --minify",
+    "format": "prettier --write ./src",
+    "publish": "npm publish --access public"
   },
   "keywords": [
     "observable",
@@ -40,11 +23,7 @@
     "fast"
   ],
   "devDependencies": {
-    "benchloop": "^2.1.0",
-    "fava": "^0.2.0",
-    "js-simple-mangler": "^2.0.0",
-    "scex": "^1.1.0",
-    "tsex": "^2.2.4",
-    "typescript": "^4.9.5"
+    "@biomejs/biome": "1.6.1",
+    "typescript": "latest"
   }
 }

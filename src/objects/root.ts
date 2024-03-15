@@ -1,67 +1,57 @@
-
 /* IMPORT */
 
-import {OWNER} from '~/context';
-import {lazySetAdd, lazySetDelete} from '~/lazy';
-import Owner from '~/objects/owner';
-import {SYMBOL_SUSPENSE} from '~/symbols';
-import type {IOwner, ISuspense, WrappedDisposableFunction, Contexts} from '~/types';
+import { OWNER } from "../context";
+import { lazySetAdd, lazySetDelete } from "../lazy";
+import Owner from "../objects/owner";
+import { SYMBOL_SUSPENSE } from "../symbols";
+import type {
+	IOwner,
+	ISuspense,
+	WrappedDisposableFunction,
+	Contexts,
+} from "../types";
 
 /* MAIN */
 
 class Root extends Owner {
+	/* VARIABLES */
 
-  /* VARIABLES */
+	parent: IOwner = OWNER;
+	context: Contexts = OWNER.context;
+	registered?: true;
 
-  parent: IOwner = OWNER;
-  context: Contexts = OWNER.context;
-  registered?: true;
+	/* CONSTRUCTOR */
 
-  /* CONSTRUCTOR */
+	constructor(register: boolean) {
+		super();
 
-  constructor ( register: boolean ) {
+		if (register) {
+			const suspense: ISuspense | undefined = this.get(SYMBOL_SUSPENSE);
 
-    super ();
+			if (suspense) {
+				this.registered = true;
 
-    if ( register ) {
+				lazySetAdd(this.parent, "roots", this);
+			}
+		}
+	}
 
-      const suspense: ISuspense | undefined = this.get ( SYMBOL_SUSPENSE );
+	/* API */
 
-      if ( suspense ) {
+	dispose(deep: boolean): void {
+		if (this.registered) {
+			lazySetDelete(this.parent, "roots", this);
+		}
 
-        this.registered = true;
+		super.dispose(deep);
+	}
 
-        lazySetAdd ( this.parent, 'roots', this );
+	wrap<T>(fn: WrappedDisposableFunction<T>): T {
+		const dispose = () => this.dispose(true);
+		const fnWithDispose = () => fn(dispose);
 
-      }
-
-    }
-
-  }
-
-  /* API */
-
-  dispose ( deep: boolean ): void {
-
-    if ( this.registered ) {
-
-      lazySetDelete ( this.parent, 'roots', this );
-
-    }
-
-    super.dispose ( deep );
-
-  }
-
-  wrap <T> ( fn: WrappedDisposableFunction<T> ): T {
-
-    const dispose = () => this.dispose ( true );
-    const fnWithDispose = () => fn ( dispose );
-
-    return super.wrap ( fnWithDispose, this, undefined );
-
-  }
-
+		return super.wrap(fnWithDispose, this, undefined);
+	}
 }
 
 /* EXPORT */

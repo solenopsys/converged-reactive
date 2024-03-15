@@ -1,222 +1,186 @@
-
 /* IMPORT */
 
-import {OWNER} from '~/context';
-import {lazySetAdd, lazySetDelete} from '~/lazy';
-import cleanup from '~/methods/cleanup';
-import resolve from '~/methods/resolve';
-import {frozen, readable} from '~/objects/callable';
-import Observable from '~/objects/observable';
-import Root from '~/objects/root';
-import {SYMBOL_CACHED, SYMBOL_SUSPENSE, SYMBOL_UNCACHED} from '~/symbols';
-import type {IObservable, IOwner, ISuspense, MapFunction, Resolved} from '~/types';
+import { OWNER } from "../context";
+import { lazySetAdd, lazySetDelete } from "../lazy";
+import cleanup from "../methods/cleanup";
+import resolve from "../methods/resolve";
+import { frozen, readable } from "../objects/callable";
+import Observable from "../objects/observable";
+import Root from "../objects/root";
+import { SYMBOL_CACHED, SYMBOL_SUSPENSE, SYMBOL_UNCACHED } from "../symbols";
+import type {
+	IObservable,
+	IOwner,
+	ISuspense,
+	MapFunction,
+	Resolved,
+} from "../types";
 
 /* HELPERS */
 
-const DUMMY_INDEX = frozen ( -1 );
+const DUMMY_INDEX = frozen(-1);
 
-class MappedRoot<T = unknown> extends Root { // This saves some memory compared to making a dedicated standalone object for metadata
-  bool?: boolean;
-  index?: IObservable<number>;
-  result?: T;
+class MappedRoot<T = unknown> extends Root {
+	// This saves some memory compared to making a dedicated standalone object for metadata
+	bool?: boolean;
+	index?: IObservable<number>;
+	result?: T;
 }
 
 /* MAIN */
 
 class CacheKeyed<T, R> {
+	/* VARIABLES */
 
-  /* VARIABLES */
+	private parent: IOwner = OWNER;
+	private suspense: ISuspense | undefined = OWNER.get(SYMBOL_SUSPENSE);
+	private fn: MapFunction<T, R>;
+	private fnWithIndex: boolean;
+	private cache: Map<T, MappedRoot<Resolved<R>>> = new Map();
+	private bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
+	private prevCount: number = 0; // Number of previous items
+	private reuseCount: number = 0; // Number of previous items that got reused
+	private nextCount: number = 0; // Number of next items
 
-  private parent: IOwner = OWNER;
-  private suspense: ISuspense | undefined = OWNER.get ( SYMBOL_SUSPENSE );
-  private fn: MapFunction<T, R>;
-  private fnWithIndex: boolean;
-  private cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
-  private bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
-  private prevCount: number = 0; // Number of previous items
-  private reuseCount: number = 0; // Number of previous items that got reused
-  private nextCount: number = 0; // Number of next items
+	/* CONSTRUCTOR */
 
-  /* CONSTRUCTOR */
+	constructor(fn: MapFunction<T, R>) {
+		this.fn = fn;
+		this.fnWithIndex = fn.length > 1;
 
-  constructor ( fn: MapFunction<T, R> ) {
+		if (this.suspense) {
+			lazySetAdd(this.parent, "roots", this.roots);
+		}
+	}
 
-    this.fn = fn;
-    this.fnWithIndex = ( fn.length > 1 );
+	/* API */
 
-    if ( this.suspense ) {
+	cleanup = (): void => {
+		if (!this.prevCount) return; // There was nothing before, no need to cleanup
 
-      lazySetAdd ( this.parent, 'roots', this.roots );
+		if (this.prevCount === this.reuseCount) return; // All the previous items were reused, no need to cleanup
 
-    }
+		const { cache, bool } = this;
 
-  }
+		if (!cache.size) return; // Nothing to dispose of
 
-  /* API */
+		if (this.nextCount) {
+			// Regular cleanup
 
-  cleanup = (): void => {
+			cache.forEach((mapped, value) => {
+				if (mapped.bool === bool) return;
 
-    if ( !this.prevCount ) return; // There was nothing before, no need to cleanup
+				mapped.dispose(true);
 
-    if ( this.prevCount === this.reuseCount ) return; // All the previous items were reused, no need to cleanup
+				cache.delete(value);
+			});
+		} else {
+			// There is nothing after, disposing quickly
 
-    const {cache, bool} = this;
+			this.cache.forEach((mapped) => {
+				mapped.dispose(true);
+			});
 
-    if ( !cache.size ) return; // Nothing to dispose of
+			this.cache = new Map();
+		}
+	};
 
-    if ( this.nextCount ) { // Regular cleanup
+	dispose = (): void => {
+		if (this.suspense) {
+			lazySetDelete(this.parent, "roots", this.roots);
+		}
 
-      cache.forEach ( ( mapped, value ) => {
+		this.prevCount = this.cache.size;
+		this.reuseCount = 0;
+		this.nextCount = 0;
 
-        if ( mapped.bool === bool ) return;
+		this.cleanup();
+	};
 
-        mapped.dispose ( true );
+	before = (): void => {
+		this.bool = !this.bool;
+		this.reuseCount = 0;
+		this.nextCount = 0;
+	};
 
-        cache.delete ( value );
+	after = (values: readonly T[]): void => {
+		this.nextCount = values.length;
 
-      });
+		this.cleanup();
 
-    } else { // There is nothing after, disposing quickly
+		this.prevCount = this.nextCount;
+		this.reuseCount = 0;
+	};
 
-      this.cache.forEach ( mapped => {
+	map = (values: readonly T[]): Resolved<R>[] => {
+		this.before();
 
-        mapped.dispose ( true );
+		const { cache, bool, fn, fnWithIndex } = this;
+		const results: Resolved<R>[] = new Array(values.length);
 
-      });
+		let resultsCached = true; // Whether all results are cached, if so this enables an optimization
+		let resultsUncached = true; // Whether all results are anew, if so this enables an optimization in Renderer
+		let reuseCount = 0;
 
-      this.cache = new Map ();
+		for (let i = 0, l = values.length; i < l; i++) {
+			const value = values[i];
+			const cached = cache.get(value);
 
-    }
+			if (cached && cached.bool !== bool) {
+				resultsUncached = false;
+				reuseCount += 1;
 
-  };
+				cached.bool = bool;
+				cached.index?.set(i);
 
-  dispose = (): void => {
+				results[i] = cached.result!; //TSC
+			} else {
+				resultsCached = false;
 
-    if ( this.suspense ) {
+				const mapped = new MappedRoot<R>(false);
 
-      lazySetDelete ( this.parent, 'roots', this.roots );
+				if (cached) {
+					cleanup(() => mapped.dispose(true));
+				}
 
-    }
+				mapped.wrap(() => {
+					let index = DUMMY_INDEX;
 
-    this.prevCount = this.cache.size;
-    this.reuseCount = 0;
-    this.nextCount = 0;
+					if (fnWithIndex) {
+						mapped.index = new Observable(i);
+						index = readable(mapped.index);
+					}
 
-    this.cleanup ();
+					const result = (results[i] = resolve(fn(value, index)));
 
-  };
+					mapped.bool = bool;
+					mapped.result = result;
 
-  before = (): void => {
+					if (!cached) {
+						cache.set(value, mapped);
+					}
+				});
+			}
+		}
 
-    this.bool = !this.bool;
-    this.reuseCount = 0;
-    this.nextCount = 0;
+		this.reuseCount = reuseCount;
 
-  };
+		this.after(values);
 
-  after = ( values: readonly T[] ): void => {
+		if (resultsCached) {
+			results[SYMBOL_CACHED] = true;
+		}
 
-    this.nextCount = values.length;
+		if (resultsUncached) {
+			results[SYMBOL_UNCACHED] = true;
+		}
 
-    this.cleanup ();
+		return results;
+	};
 
-    this.prevCount = this.nextCount;
-    this.reuseCount = 0;
-
-  };
-
-  map = ( values: readonly T[] ): Resolved<R>[] => {
-
-    this.before ();
-
-    const {cache, bool, fn, fnWithIndex} = this;
-    const results: Resolved<R>[] = new Array ( values.length );
-
-    let resultsCached = true; // Whether all results are cached, if so this enables an optimization
-    let resultsUncached = true; // Whether all results are anew, if so this enables an optimization in Voby
-    let reuseCount = 0;
-
-    for ( let i = 0, l = values.length; i < l; i++ ) {
-
-      const value = values[i];
-      const cached = cache.get ( value );
-
-      if ( cached && cached.bool !== bool ) {
-
-        resultsUncached = false;
-        reuseCount += 1;
-
-        cached.bool = bool;
-        cached.index?.set ( i );
-
-        results[i] = cached.result!; //TSC
-
-      } else {
-
-        resultsCached = false;
-
-        const mapped = new MappedRoot<R> ( false );
-
-        if ( cached ) {
-
-          cleanup ( () => mapped.dispose ( true ) );
-
-        }
-
-        mapped.wrap ( () => {
-
-          let index = DUMMY_INDEX;
-
-          if ( fnWithIndex ) {
-
-            mapped.index = new Observable ( i );
-            index = readable ( mapped.index );
-
-          }
-
-          const result = results[i] = resolve ( fn ( value, index ) );
-
-          mapped.bool = bool;
-          mapped.result = result;
-
-          if ( !cached ) {
-
-            cache.set ( value, mapped );
-
-          }
-
-        });
-
-      }
-
-    }
-
-    this.reuseCount = reuseCount;
-
-    this.after ( values );
-
-    if ( resultsCached ) {
-
-      results[SYMBOL_CACHED] = true;
-
-    }
-
-    if ( resultsUncached ) {
-
-      results[SYMBOL_UNCACHED] = true;
-
-    }
-
-    return results;
-
-  };
-
-  roots = (): MappedRoot<R>[] => {
-
-    return Array.from ( this.cache.values () );
-
-  };
-
+	roots = (): MappedRoot<R>[] => {
+		return Array.from(this.cache.values());
+	};
 }
 
 /* EXPORT */
