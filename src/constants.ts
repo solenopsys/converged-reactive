@@ -23,7 +23,7 @@ const UNAVAILABLE: any = new Proxy(
 		},
 	),
 ); //TSC
-const UNINITIALIZED: any = function () { }; //TSC
+const UNINITIALIZED: any = function () {}; //TSC
 
 /* EXPORT */
 

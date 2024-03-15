@@ -6,6 +6,15 @@
     "esModuleInterop": true,  
     "noImplicitAny": false,
     "noImplicitReturns": false,
-    "noUnusedParameters": false
-  }
+    "noUnusedParameters": false,
+      "outDir": "./dist",
+      "declaration": true,
+      "declarationDir": "./dist",
+      "types": [],
+
+    },
+    "include": ["./src/**/*"],
+    "exclude": ["node_modules"],
+
+  
 }

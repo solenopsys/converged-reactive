@@ -15,7 +15,7 @@ class Effect extends Observer {
 	fn: EffectFunction;
 	suspense?: ISuspense;
 	init?: true;
-	sync?: true;
+	declare sync?: true;
 
 	/* CONSTRUCTOR */
 

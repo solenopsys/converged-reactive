@@ -12,7 +12,8 @@ class Memo<T = unknown> extends Observer {
 
 	fn: MemoFunction<T>;
 	observable: IObservable<T>;
-	sync?: boolean;
+
+	declaresync?: boolean;
 
 	/* CONSTRUCTOR */
 

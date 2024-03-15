@@ -8,7 +8,7 @@ import type { Contexts } from "../types";
 class SuperRoot extends Owner {
 	/* VARIABLES */
 
-	parent: undefined;
+	declare parent: undefined;
 	context: Contexts = {};
 }
 
