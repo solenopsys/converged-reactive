@@ -1480,4 +1480,4 @@ type StoreOptions = {
 
 ## License
 
-MIT © Fabio Spampinato
+MIT © Solenopsys Fondation
