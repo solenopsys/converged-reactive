@@ -2,14 +2,6 @@
 *.err
 *.log
 ._*
-.cache
-.fseventsd
-.DocumentRevisions*
-.DS_Store
-.TemporaryItems
-.Trashes
-Thumbs.db
-
+bun.lockb
 dist
 node_modules
-package-lock.json
