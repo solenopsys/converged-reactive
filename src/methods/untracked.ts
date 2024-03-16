@@ -7,13 +7,13 @@ import type { UntrackedFunction } from "../types";
 
 /* MAIN */
 
-function untracked<Arguments extends unknown[], T>(
-	fn: UntrackedFunction<Arguments, T>,
-): (...args: Arguments) => T;
-function untracked<T>(fn: T): () => T;
-function untracked<Arguments extends unknown[], T>(
+// function untracked<Arguments extends unknown[], T>(
+// 	fn: UntrackedFunction<Arguments, T>,
+// ): (...args: Arguments) => T;
+// function untracked<T>(fn: T): () => T;
+const untracked = <Arguments extends unknown[], T>(
 	fn: UntrackedFunction<Arguments, T> | T,
-) {
+) => {
 	const untracked = isFunction(fn)
 		? (...args: Arguments): T => untrack(() => fn(...args))
 		: () => fn;
@@ -21,7 +21,7 @@ function untracked<Arguments extends unknown[], T>(
 	untracked[SYMBOL_UNTRACKED] = true;
 
 	return untracked;
-}
+};
 
 /* EXPORT */
 
