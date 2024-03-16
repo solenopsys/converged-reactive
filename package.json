@@ -1,9 +1,8 @@
 {
   "name": "@solenopsys/converged-reactive",
   "description": "Observable/Signal implementation for Coverged Framework",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "type": "module",
-  "module": "src/index.ts",
   "sideEffects": false,
   "main": "dist/index.js",
   "exports": {

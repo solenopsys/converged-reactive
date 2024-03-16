@@ -4,6 +4,7 @@
     "module": "ESNext",         
     "strict": true,           
     "esModuleInterop": true,  
+    "moduleResolution": "Node",
     "noImplicitAny": false,
     "noImplicitReturns": false,
     "noUnusedParameters": false,
