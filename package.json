@@ -13,7 +13,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "format": "bunx @biomejs/biome format src/* --write",
+    "format": "bunx @biomejs/biome format src/**/*.ts --write",
     "bundle": "bun build  src/index.ts --outfile  dist/index.js ",
     "types": "bun dts-bundle-generator  --export-referenced-types -o dist/index.d.ts src/index.ts",
     "package": "bun run format && bun run bundle &&  bun run  types && npm publish --access public"
