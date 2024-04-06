@@ -1,14 +1,14 @@
 /* IMPORT */
 
-import cleanup from "../methods/cleanup";
-import CacheKeyed from "../methods/for.cache.keyed";
-import CacheUnkeyed from "../methods/for.cache.unkeyed";
-import get from "../methods/get";
+import cleanup from "./cleanup";
+import CacheKeyed from "./for.cache.keyed";
+import CacheUnkeyed from "./for.cache.unkeyed";
+import get from "./get";
 import isObservable from "./is_observable";
-import isStore from "../methods/is_store";
-import memo from "../methods/memo";
-import resolve from "../methods/resolve";
-import untrack from "../methods/untrack";
+import isStore from "./is_store";
+import memo from "./memo";
+import resolve from "./resolve";
+import untrack from "./untrack";
 import { frozen } from "../objects/callable";
 import { SYMBOL_CACHED, SYMBOL_STORE_VALUES } from "../symbols";
 import { isArray, isEqual } from "../utils";

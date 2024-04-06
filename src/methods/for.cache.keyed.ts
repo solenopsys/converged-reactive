@@ -2,8 +2,8 @@
 
 import { OWNER } from "../context";
 import { lazySetAdd, lazySetDelete } from "../lazy";
-import cleanup from "../methods/cleanup";
-import resolve from "../methods/resolve";
+import cleanup from "./cleanup";
+import resolve from "./resolve";
 import { frozen, readable } from "../objects/callable";
 import Observable from "../objects/observable";
 import Root from "../objects/root";

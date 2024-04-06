@@ -1,6 +1,6 @@
 /* IMPORT */
 
-import untrack from "../methods/untrack";
+import untrack from "./untrack";
 import type { ObservableReadonly } from "../types";
 
 /* MAIN */

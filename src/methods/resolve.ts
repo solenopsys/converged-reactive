@@ -1,5 +1,5 @@
 /* IMPORT */
-import memo from "../methods/memo";
+import memo from "./memo";
 import { frozen } from "../objects/callable";
 import {
 	SYMBOL_OBSERVABLE,

@@ -2,7 +2,7 @@
 
 import { OWNER } from "../context";
 import { lazySetAdd, lazySetDelete } from "../lazy";
-import Owner from "../objects/owner";
+import Owner from "./owner";
 import { SYMBOL_SUSPENSE } from "../symbols";
 import type {
 	IOwner,

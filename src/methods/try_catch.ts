@@ -1,9 +1,9 @@
 /* IMPORT */
 
 import { OWNER } from "../context";
-import memo from "../methods/memo";
-import $ from "../methods/observable";
-import resolve from "../methods/resolve";
+import memo from "./memo";
+import $ from "./observable";
+import resolve from "./resolve";
 import type { TryCatchFunction, ObservableReadonly, Resolved } from "../types";
 
 /* MAIN */

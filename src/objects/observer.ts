@@ -8,8 +8,8 @@ import {
 } from "../constants";
 import { OWNER, SUPER_OWNER } from "../context";
 import { lazyArrayPush } from "../lazy";
-import { ObservablesArray, ObservablesSet } from "../objects/observables";
-import Owner from "../objects/owner";
+import { ObservablesArray, ObservablesSet } from "./observables";
+import Owner from "./owner";
 import type { IOwner, ObserverFunction, Contexts } from "../types";
 
 /* MAIN */

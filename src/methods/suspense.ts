@@ -1,8 +1,8 @@
 /* IMPORT */
 
-import boolean from "../methods/boolean";
-import effect from "../methods/effect";
-import get from "../methods/get";
+import boolean from "./boolean";
+import effect from "./effect";
+import get from "./get";
 import Suspense from "../objects/suspense";
 import type { SuspenseFunction, FunctionMaybe } from "../types";
 

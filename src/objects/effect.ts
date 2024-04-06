@@ -1,8 +1,8 @@
 /* IMPORT */
 
 import { lazyArrayPush } from "../lazy";
-import Observer from "../objects/observer";
-import Scheduler from "../objects/scheduler.async";
+import Observer from "./observer";
+import Scheduler from "./scheduler.async";
 import { SYMBOL_SUSPENSE } from "../symbols";
 import { isFunction } from "../utils";
 import type { ISuspense, EffectFunction, EffectOptions } from "../types";

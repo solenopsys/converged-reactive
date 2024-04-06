@@ -2,11 +2,11 @@
 
 import { OWNER } from "../context";
 import { lazySetAdd, lazySetDelete } from "../lazy";
-import cleanup from "../methods/cleanup";
-import get from "../methods/get";
-import memo from "../methods/memo";
-import resolve from "../methods/resolve";
-import suspense from "../methods/suspense";
+import cleanup from "./cleanup";
+import get from "./get";
+import memo from "./memo";
+import resolve from "./resolve";
+import suspense from "./suspense";
 import { frozen, readable } from "../objects/callable";
 import Observable from "../objects/observable";
 import Root from "../objects/root";

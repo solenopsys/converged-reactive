@@ -1,6 +1,6 @@
 /* IMPORT */
 
-import Owner from "../objects/owner";
+import Owner from "./owner";
 import type { Contexts } from "../types";
 
 /* MAIN */

@@ -1,8 +1,8 @@
 /* IMPORT */
 
 import { DIRTY_MAYBE_YES, UNAVAILABLE, UNINITIALIZED } from "../constants";
-import Observable from "../objects/observable";
-import Observer from "../objects/observer";
+import Observable from "./observable";
+import Observer from "./observer";
 import type { IObservable, MemoFunction, MemoOptions } from "../types";
 
 /* MAIN */

@@ -1,12 +1,12 @@
 /* IMPORT */
 
-import get from "../methods/get";
-import isObservableBoolean from "../methods/is_observable_boolean";
-import isObservableFrozen from "../methods/is_observable_frozen";
-import isUntracked from "../methods/is_untracked";
-import memo from "../methods/memo";
-import resolve from "../methods/resolve";
-import warmup from "../methods/warmup";
+import get from "./get";
+import isObservableBoolean from "./is_observable_boolean";
+import isObservableFrozen from "./is_observable_frozen";
+import isUntracked from "./is_untracked";
+import memo from "./memo";
+import resolve from "./resolve";
+import warmup from "./warmup";
 import { frozen } from "../objects/callable";
 import { is, isFunction } from "../utils";
 import type { ObservableReadonly, FunctionMaybe, Resolved } from "../types";

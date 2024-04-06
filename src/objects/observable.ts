@@ -2,7 +2,7 @@
 
 import { DIRTY_MAYBE_NO, DIRTY_YES, UNINITIALIZED } from "../constants";
 import { OBSERVER } from "../context";
-import Scheduler from "../objects/scheduler.sync";
+import Scheduler from "./scheduler.sync";
 import { is, nope } from "../utils";
 import type {
 	IObserver,

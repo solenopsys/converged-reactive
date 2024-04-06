@@ -1,12 +1,12 @@
 /* IMPORT */
 
 import { OBSERVABLE_FALSE, OBSERVABLE_TRUE } from "../constants";
-import cleanup from "../methods/cleanup";
-import effect from "../methods/effect";
-import isObservableFrozen from "../methods/is_observable_frozen";
-import memo from "../methods/memo";
-import untrack from "../methods/untrack";
-import warmup from "../methods/warmup";
+import cleanup from "./cleanup";
+import effect from "./effect";
+import isObservableFrozen from "./is_observable_frozen";
+import memo from "./memo";
+import untrack from "./untrack";
+import warmup from "./warmup";
 import { readable } from "../objects/callable";
 import Observable from "../objects/observable";
 import { is } from "../utils";

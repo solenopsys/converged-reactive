@@ -1,6 +1,6 @@
 /* IMPORT */
 
-import ternary from "../methods/ternary";
+import ternary from "./ternary";
 import type { ObservableReadonly, FunctionMaybe, Resolved } from "../types";
 
 /* MAIN */

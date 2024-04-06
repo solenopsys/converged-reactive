@@ -1,9 +1,9 @@
 /* IMPORT */
 
 import isObservableBoolean from "./is_observable_boolean";
-import isObservableFrozen from "../methods/is_observable_frozen";
-import isUntracked from "../methods/is_untracked";
-import memo from "../methods/memo";
+import isObservableFrozen from "./is_observable_frozen";
+import isUntracked from "./is_untracked";
+import memo from "./memo";
 import { SYMBOL_OBSERVABLE_BOOLEAN } from "../symbols";
 import { isFunction } from "../utils";
 import type { FunctionMaybe } from "../types";

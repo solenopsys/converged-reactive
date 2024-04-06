@@ -2,11 +2,11 @@
 
 import { BATCH, OBSERVER } from "../context";
 import { lazySetAdd, lazySetDelete, lazySetEach } from "../lazy";
-import cleanup from "../methods/cleanup";
-import effect from "../methods/effect";
-import isBatching from "../methods/is_batching";
-import isStore from "../methods/is_store";
-import untrack from "../methods/untrack";
+import cleanup from "./cleanup";
+import effect from "./effect";
+import isBatching from "./is_batching";
+import isStore from "./is_store";
+import untrack from "./untrack";
 import { readable } from "../objects/callable";
 import ObservableClass from "../objects/observable";
 import {

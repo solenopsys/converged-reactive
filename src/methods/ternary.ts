@@ -1,7 +1,7 @@
 /* IMPORT */
 
-import boolean from "../methods/boolean";
-import _switch from "../methods/switch";
+import boolean from "./boolean";
+import _switch from "./switch";
 import type { ObservableReadonly, FunctionMaybe, Resolved } from "../types";
 
 /* MAIN */

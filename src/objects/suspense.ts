@@ -3,8 +3,8 @@
 import { DIRTY_MAYBE_YES, DIRTY_YES } from "../constants";
 import { OWNER } from "../context";
 import { lazyArrayEach, lazyArrayPush, lazySetEach } from "../lazy";
-import Effect from "../objects/effect";
-import Owner from "../objects/owner";
+import Effect from "./effect";
+import Owner from "./owner";
 import { SYMBOL_SUSPENSE } from "../symbols";
 import { isFunction } from "../utils";
 import type {

@@ -1,6 +1,6 @@
 /* IMPORT */
 
-import untrack from "../methods/untrack";
+import untrack from "./untrack";
 import { SYMBOL_UNTRACKED } from "../symbols";
 import { isFunction } from "../utils";
 import type { UntrackedFunction } from "../types";

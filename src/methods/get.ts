@@ -1,5 +1,5 @@
 /* IMPORT */
-import isObservable from "../methods/is_observable";
+import isObservable from "./is_observable";
 import { isFunction } from "../utils";
 import type { FunctionMaybe, ObservableReadonly } from "../types";
 

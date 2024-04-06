@@ -2,7 +2,7 @@
 
 import { OWNER } from "../context";
 import { lazyArrayPush } from "../lazy";
-import Owner from "../objects/owner";
+import Owner from "./owner";
 import type { IOwner, ContextFunction, Contexts } from "../types";
 
 /* MAIN */

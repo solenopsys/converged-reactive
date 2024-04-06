@@ -1,7 +1,7 @@
 /* IMPORT */
 
-import isObservableWritable from "../methods/is_observable_writable";
-import target from "../methods/target";
+import isObservableWritable from "./is_observable_writable";
+import target from "./target";
 import { readable } from "../objects/callable";
 import type { Observable, ObservableReadonly } from "../types";
 
